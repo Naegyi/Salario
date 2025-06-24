@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Salário Pessoal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .negative {
+            color: red;
+        }
+        .positive {
+            color: green;
+        }
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .expense-item button {
+            background-color: #f44336;
+            padding: 5px 10px;
+        }
+        .expense-item button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Salário Pessoal</h1>
+    
+    <div class="section">
+        <h2>Informações do Salário</h2>
+        <div class="input-group">
+            <label for="salarioBruto">Salário Bruto (R$):</label>
+            <input type="number" id="salarioBruto" step="0.01" min="0" placeholder="Digite seu salário bruto">
+        </div>
+        
+        <div class="input-group">
+            <label for="valeTransporte">Vale Transporte (R$):</label>
+            <input type="number" id="valeTransporte" step="0.01" min="0" placeholder="Valor do vale transporte">
+        </div>
+        
+        <div class="input-group">
+            <label for="valeAlimentacao">Vale Alimentação/Refeição (R$):</label>
+            <input type="number" id="valeAlimentacao" step="0.01" min="0" placeholder="Valor do vale alimentação">
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Descontos Obrigatórios</h2>
+        <div class="input-group">
+            <label for="outrosDescontos">Outros Descontos (R$):</label>
+            <input type="number" id="outrosDescontos" step="0.01" min="0" placeholder="Outros descontos">
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Despesas Adicionais</h2>
+        <div class="input-group">
+            <label for="despesaDescricao">Descrição da Despesa:</label>
+            <input type="text" id="despesaDescricao" placeholder="Ex: Aluguel, Faculdade...">
+        </div>
+        
+        <div class="input-group">
+            <label for="despesaValor">Valor (R$):</label>
+            <input type="number" id="despesaValor" step="0.01" min="0" placeholder="Valor da despesa">
+        </div>
+        
+        <button id="btnAdicionarDespesa">Adicionar Despesa</button>
+        
+        <div id="listaDespesas">
+            <h3>Despesas Cadastradas</h3>
+            <div id="despesas"></div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <button id="btnCalcularSalario">Calcular Salário Líquido</button>
+    </div>
+    
+    <div class="section" id="resultado" style="display: none;">
+        <h2>Holerite</h2>
+        <table>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor (R$)</th>
+            </tr>
+            <tr>
+                <td>Salário Bruto</td>
+                <td id="resSalarioBruto">0,00</td>
+            </tr>
+            <tr>
+                <td>Vale Transporte</td>
+                <td id="resValeTransporte">0,00</td>
+            </tr>
+            <tr>
+                <td>Vale Alimentação/Refeição</td>
+                <td id="resValeAlimentacao">0,00</td>
+            </tr>
+            <tr>
+                <td>Desconto INSS</td>
+                <td id="resINSS">0,00</td>
+            </tr>
+            <tr>
+                <td>Desconto IRRF</td>
+                <td id="resIRRF">0,00</td>
+            </tr>
+            <tr>
+                <td>Outros Descontos</td>
+                <td id="resOutrosDescontos">0,00</td>
+            </tr>
+            <tr class="total">
+                <td>Salário Líquido</td>
+                <td id="resSalarioLiquido">0,00</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Despesas</strong></td>
+            </tr>
+            <tbody id="resDespesas">
+                <!-- Despesas serão adicionadas aqui -->
+            </tbody>
+            <tr class="total">
+                <td>Total de Despesas</td>
+                <td id="resTotalDespesas">0,00</td>
+            </tr>
+            <tr class="total">
+                <td>Saldo Final</td>
+                <td id="resSaldoFinal">0,00</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        let despesas = [];
+        
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
+        function adicionarDespesa() {
+            const descricao = document.getElementById('despesaDescricao').value;
+            const valor = parseFloat(document.getElementById('despesaValor').value);
+            
+            if (!descricao || isNaN(valor) || valor <= 0) {
+                alert('Por favor, preencha a descrição e um valor válido para a despesa.');
+                return;
+            }
+            
+            despesas.push({ descricao, valor });
+            atualizarListaDespesas();
+            
+            // Limpar campos
+            document.getElementById('despesaDescricao').value = '';
+            document.getElementById('despesaValor').value = '';
+        }
+        
+        function removerDespesa(index) {
+            despesas.splice(index, 1);
+            atualizarListaDespesas();
+        }
+        
+        function atualizarListaDespesas() {
+            const lista = document.getElementById('despesas');
+            lista.innerHTML = '';
+            
+            if (despesas.length === 0) {
+                lista.innerHTML = '<p>Nenhuma despesa cadastrada.</p>';
+                return;
+            }
+            
+            despesas.forEach((despesa, index) => {
+                const item = document.createElement('div');
+                item.className = 'expense-item';
+                item.innerHTML = `
+                    <span>${despesa.descricao}: ${formatarMoeda(despesa.valor)}</span>
+                    <button onclick="removerDespesa(${index})">Remover</button>
+                `;
+                lista.appendChild(item);
+            });
+        }
+        
+        function calcularINSS(salario) {
+            if (salario <= 1412.00) return salario * 0.075;
+            if (salario <= 2666.68) return 1412.00 * 0.075 + (salario - 1412.00) * 0.09;
+            if (salario <= 4000.03) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (salario - 2666.68) * 0.12;
+            if (salario <= 7786.02) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (4000.03 - 2666.68) * 0.12 + (salario - 4000.03) * 0.14;
+            return 908.85; // Teto do INSS
+        }
+
+        function calcularIRRF(salario, inss) {
+            const base = salario - inss;
+            if (base <= 2112.00) return 0;
+            if (base <= 2826.65) return (base - 2112.00) * 0.075 - 158.40;
+            if (base <= 3751.05) return (base - 2826.65) * 0.15 - 370.40;
+            if (base <= 4664.68) return (base - 3751.05) * 0.225 - 651.73;
+            return (base - 4664.68) * 0.275 - 884.96;
+        }
+
+        function calcularSalario() {
+            // Obter valores dos inputs
+            const salarioBruto = parseFloat(document.getElementById('salarioBruto').value) || 0;
+            const valeTransporte = parseFloat(document.getElementById('valeTransporte').value) || 0;
+            const valeAlimentacao = parseFloat(document.getElementById('valeAlimentacao').value) || 0;
+            const outrosDescontos = parseFloat(document.getElementById('outrosDescontos').value) || 0;
+            
+            // Validar valores
+            if (salarioBruto <= 0) {
+                alert('Por favor, informe um salário bruto válido.');
+                return;
+            }
+            
+            // Calcular descontos
+            const inssValor = calcularINSS(salarioBruto);
+            const irrfValor = calcularIRRF(salarioBruto, inssValor);
+            const descontoValeTransporte = Math.min(valeTransporte, salarioBruto * 0.06);
+            
+            // Calcular salário líquido
+            const salarioLiquido = salarioBruto - inssValor - irrfValor - outrosDescontos - descontoValeTransporte;
+            
+            // Calcular total de despesas
+            const totalDespesas = despesas.reduce((total, despesa) => total + despesa.valor, 0);
+            
+            // Calcular saldo final
+            const saldoFinal = salarioLiquido - totalDespesas;
+            
+            // Atualizar resultados
+            document.getElementById('resSalarioBruto').textContent = formatarMoeda(salarioBruto);
+            document.getElementById('resValeTransporte').textContent = formatarMoeda(valeTransporte);
+            document.getElementById('resValeAlimentacao').textContent = formatarMoeda(valeAlimentacao);
+            document.getElementById('resINSS').textContent = formatarMoeda(inssValor);
+            document.getElementById('resIRRF').textContent = formatarMoeda(irrfValor);
+            document.getElementById('resOutrosDescontos').textContent = formatarMoeda(outrosDescontos);
+            document.getElementById('resSalarioLiquido').textContent = formatarMoeda(salarioLiquido);
+            document.getElementById('resTotalDespesas').textContent = formatarMoeda(totalDespesas);
+            
+            // Adicionar despesas à tabela de resultados
+            const resDespesas = document.getElementById('resDespesas');
+            resDespesas.innerHTML = '';
+            despesas.forEach(despesa => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${despesa.descricao}</td>
+                    <td>${formatarMoeda(despesa.valor)}</td>
+                `;
+                resDespesas.appendChild(row);
+            });
+            
+            // Atualizar saldo final com classe de cor apropriada
+            const saldoFinalElement = document.getElementById('resSaldoFinal');
+            saldoFinalElement.textContent = formatarMoeda(saldoFinal);
+            saldoFinalElement.className = saldoFinal < 0 ? 'total negative' : 'total positive';
+            
+            // Mostrar resultados
+            document.getElementById('resultado').style.display = 'block';
+        }
+        
+        // Inicializar lista de despesas
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarListaDespesas();
+            
+            // Adicionar eventos aos botões
+            document.getElementById('btnAdicionarDespesa').addEventListener('click', adicionarDespesa);
+            document.getElementById('btnCalcularSalario').addEventListener('click', calcularSalario);
+        });
+    </script>
+</body>
+</html>
