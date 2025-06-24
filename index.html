@@ -255,79 +255,85 @@
         }
         
         function calcularINSS(salario) {
-            if (salario <= 1412.00) return salario * 0.075;
-            if (salario <= 2666.68) return 1412.00 * 0.075 + (salario - 1412.00) * 0.09;
-            if (salario <= 4000.03) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (salario - 2666.68) * 0.12;
-            if (salario <= 7786.02) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (4000.03 - 2666.68) * 0.12 + (salario - 4000.03) * 0.14;
-            return 908.85; // Teto do INSS
-        }
+    if (salario <= 1412.00) return salario * 0.075;
+    if (salario <= 2666.68) return 1412.00 * 0.075 + (salario - 1412.00) * 0.09;
+    if (salario <= 4000.03) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (salario - 2666.68) * 0.12;
+    if (salario <= 7786.02) return 1412.00 * 0.075 + (2666.68 - 1412.00) * 0.09 + (4000.03 - 2666.68) * 0.12 + (salario - 4000.03) * 0.14;
+    return 908.85; // Teto do INSS
+}
 
-        function calcularIRRF(salario, inss) {
-            const base = salario - inss;
-            if (base <= 2112.00) return 0;
-            if (base <= 2826.65) return (base - 2112.00) * 0.075 - 158.40;
-            if (base <= 3751.05) return (base - 2826.65) * 0.15 - 370.40;
-            if (base <= 4664.68) return (base - 3751.05) * 0.225 - 651.73;
-            return (base - 4664.68) * 0.275 - 884.96;
-        }
+function calcularIRRF(salario, inss) {
+    const base = salario - inss;
+    let irrf = 0;
+    if (base > 4664.68) {
+        irrf = base * 0.275 - 884.96;
+    } else if (base > 3751.05) {
+        irrf = base * 0.225 - 651.73;
+    } else if (base > 2826.65) {
+        irrf = base * 0.15 - 370.40;
+    } else if (base > 2112.00) {
+        irrf = base * 0.075 - 158.40;
+    }
+    return Math.max(0, irrf);
+}
 
-        function calcularSalario() {
-            // Obter valores dos inputs
-            const salarioBruto = parseFloat(document.getElementById('salarioBruto').value) || 0;
-            const valeTransporte = parseFloat(document.getElementById('valeTransporte').value) || 0;
-            const valeAlimentacao = parseFloat(document.getElementById('valeAlimentacao').value) || 0;
-            const outrosDescontos = parseFloat(document.getElementById('outrosDescontos').value) || 0;
-            
-            // Validar valores
-            if (salarioBruto <= 0) {
-                alert('Por favor, informe um salário bruto válido.');
-                return;
-            }
-            
-            // Calcular descontos
-            const inssValor = calcularINSS(salarioBruto);
-            const irrfValor = calcularIRRF(salarioBruto, inssValor);
-            const descontoValeTransporte = Math.min(valeTransporte, salarioBruto * 0.06);
-            
-            // Calcular salário líquido
-            const salarioLiquido = salarioBruto - inssValor - irrfValor - outrosDescontos - descontoValeTransporte;
-            
-            // Calcular total de despesas
-            const totalDespesas = despesas.reduce((total, despesa) => total + despesa.valor, 0);
-            
-            // Calcular saldo final
-            const saldoFinal = salarioLiquido - totalDespesas;
-            
-            // Atualizar resultados
-            document.getElementById('resSalarioBruto').textContent = formatarMoeda(salarioBruto);
-            document.getElementById('resValeTransporte').textContent = formatarMoeda(valeTransporte);
-            document.getElementById('resValeAlimentacao').textContent = formatarMoeda(valeAlimentacao);
-            document.getElementById('resINSS').textContent = formatarMoeda(inssValor);
-            document.getElementById('resIRRF').textContent = formatarMoeda(irrfValor);
-            document.getElementById('resOutrosDescontos').textContent = formatarMoeda(outrosDescontos);
-            document.getElementById('resSalarioLiquido').textContent = formatarMoeda(salarioLiquido);
-            document.getElementById('resTotalDespesas').textContent = formatarMoeda(totalDespesas);
-            
-            // Adicionar despesas à tabela de resultados
-            const resDespesas = document.getElementById('resDespesas');
-            resDespesas.innerHTML = '';
-            despesas.forEach(despesa => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${despesa.descricao}</td>
-                    <td>${formatarMoeda(despesa.valor)}</td>
-                `;
-                resDespesas.appendChild(row);
-            });
-            
-            // Atualizar saldo final com classe de cor apropriada
-            const saldoFinalElement = document.getElementById('resSaldoFinal');
-            saldoFinalElement.textContent = formatarMoeda(saldoFinal);
-            saldoFinalElement.className = saldoFinal < 0 ? 'total negative' : 'total positive';
-            
-            // Mostrar resultados
-            document.getElementById('resultado').style.display = 'block';
-        }
+function calcularSalario() {
+    // Obter valores dos inputs
+    const salarioBruto = parseFloat(document.getElementById('salarioBruto').value) || 0;
+    const valeTransporte = parseFloat(document.getElementById('valeTransporte').value) || 0;
+    const valeAlimentacao = parseFloat(document.getElementById('valeAlimentacao').value) || 0;
+    const outrosDescontos = parseFloat(document.getElementById('outrosDescontos').value) || 0;
+    
+    // Validar valores
+    if (salarioBruto <= 0) {
+        alert('Por favor, informe um salário bruto válido.');
+        return;
+    }
+    
+    // Calcular descontos
+    const inssValor = calcularINSS(salarioBruto);
+    const irrfValor = calcularIRRF(salarioBruto, inssValor);
+    const descontoValeTransporte = Math.min(valeTransporte, salarioBruto * 0.06);
+    
+    // Calcular salário líquido
+    const salarioLiquido = salarioBruto - inssValor - irrfValor - outrosDescontos - descontoValeTransporte;
+    
+    // Calcular total de despesas
+    const totalDespesas = despesas.reduce((total, despesa) => total + despesa.valor, 0);
+    
+    // Calcular saldo final
+    const saldoFinal = salarioLiquido - totalDespesas;
+    
+    // Atualizar resultados
+    document.getElementById('resSalarioBruto').textContent = formatarMoeda(salarioBruto);
+    document.getElementById('resValeTransporte').textContent = formatarMoeda(valeTransporte);
+    document.getElementById('resValeAlimentacao').textContent = formatarMoeda(valeAlimentacao);
+    document.getElementById('resINSS').textContent = formatarMoeda(inssValor);
+    document.getElementById('resIRRF').textContent = formatarMoeda(irrfValor);
+    document.getElementById('resOutrosDescontos').textContent = formatarMoeda(outrosDescontos);
+    document.getElementById('resSalarioLiquido').textContent = formatarMoeda(salarioLiquido);
+    document.getElementById('resTotalDespesas').textContent = formatarMoeda(totalDespesas);
+    
+    // Adicionar despesas à tabela de resultados
+    const resDespesas = document.getElementById('resDespesas');
+    resDespesas.innerHTML = '';
+    despesas.forEach(despesa => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${despesa.descricao}</td>
+            <td>${formatarMoeda(despesa.valor)}</td>
+        `;
+        resDespesas.appendChild(row);
+    });
+    
+    // Atualizar saldo final com classe de cor apropriada
+    const saldoFinalElement = document.getElementById('resSaldoFinal');
+    saldoFinalElement.textContent = formatarMoeda(saldoFinal);
+    saldoFinalElement.className = saldoFinal < 0 ? 'total negative' : 'total positive';
+    
+    // Mostrar resultados
+    document.getElementById('resultado').style.display = 'block';
+}
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
