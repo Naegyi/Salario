@@ -86,6 +86,18 @@
         .expense-item button:hover {
             background-color: #d32f2f;
         }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .section {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -129,7 +141,7 @@
             <input type="number" id="despesaValor" step="0.01" min="0" placeholder="Valor da despesa">
         </div>
         
-        <button id="btnAdicionarDespesa">Adicionar Despesa</button>
+        <button id="btnAdicionar">Adicionar Despesa</button>
         
         <div id="listaDespesas">
             <h3>Despesas Cadastradas</h3>
@@ -138,7 +150,7 @@
     </div>
     
     <div class="section">
-        <button id="btnCalcularSalario">Calcular Salário Líquido</button>
+        <button id="btnCalcular">Calcular Salário Líquido</button>
     </div>
     
     <div class="section" id="resultado" style="display: none;">
@@ -317,13 +329,21 @@
             document.getElementById('resultado').style.display = 'block';
         }
         
-        // Inicializar lista de despesas
+        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            // Vincular eventos aos botões
+            document.getElementById('btnAdicionar').addEventListener('click', adicionarDespesa);
+            document.getElementById('btnCalcular').addEventListener('click', calcularSalario);
+            
+            // Inicializar lista de despesas
             atualizarListaDespesas();
             
-            // Adicionar eventos aos botões
-            document.getElementById('btnAdicionarDespesa').addEventListener('click', adicionarDespesa);
-            document.getElementById('btnCalcularSalario').addEventListener('click', calcularSalario);
+            // Permitir adicionar despesa com Enter
+            document.getElementById('despesaValor').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    adicionarDespesa();
+                }
+            });
         });
     </script>
 </body>
